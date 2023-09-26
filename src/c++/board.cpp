@@ -1,5 +1,6 @@
 #include <iostream>
 #include "board.h"
+//BOARD_STATE methods
 
 //construct a base board
 board_state::board_state() {
@@ -23,6 +24,10 @@ board_state::board_state(const board_state& b) {
         }
     }
     this->remaining_spots = b.remaining_spots;
+}
+
+board_state::~board_state() {
+    this->remaining_spots = 9;
 }
 
 //sets value and updates the remaining spots
@@ -53,4 +58,15 @@ void board_state::print() {
         std::cout << std::endl;
     }
     std::cout << "_______" << std::endl;
+}
+
+//BOARD Methods
+
+//board constructor
+board::board() {
+    this->my_board = new board_state();
+}
+//board destructor
+board::~board() {
+    delete this->my_board;
 }

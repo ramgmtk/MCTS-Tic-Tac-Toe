@@ -29,6 +29,12 @@ class board_state {
 };
 
 class board {
-    friend class board_state;
+    public:
+        board_state* my_board;
+        board();
+        board(const board&) = delete;
+        board& operator=(const board&) = delete;
+        ~board();
+        friend class board_state;
 };
 #endif
