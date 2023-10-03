@@ -24,9 +24,11 @@ class board_state {
         board_state& operator=(const board_state&) = delete;
         ~board_state();
         //setter
-        void set_value(unsigned int x, unsigned int y, bool b);
+        void set_space(unsigned int x, unsigned int y, bool b);
         //check if a spot is available
         bool check_spot(unsigned int x, unsigned int y);
+        //chec for winner
+        bool check_winner();
         //print
         void print();
         friend class board;
@@ -38,7 +40,7 @@ class board {
         //!player_choice represens cpu choice
         bool player_choice;
         board_state* my_board;
-        bool try_value(unsigned int x, unsigned int y);
+        bool try_space(unsigned int x, unsigned int y);
         void cpu_turn();
         void player_turn();
     public:

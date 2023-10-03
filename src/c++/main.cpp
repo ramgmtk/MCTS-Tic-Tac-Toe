@@ -8,5 +8,6 @@ int main () {
     } catch(...) {
         std::cout << "Terminating Game." << std::endl;
     }
+    system("pause");
     return 0;
 }

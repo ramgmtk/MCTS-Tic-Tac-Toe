@@ -34,7 +34,7 @@ board_state::~board_state() {
 //sets value and updates the remaining spots
 //true boolean corresponds to 'O', false to 'X'
 //does not check if a move is valid
-void board_state::set_value(unsigned int x, unsigned int y, bool b) {
+void board_state::set_space(unsigned int x, unsigned int y, bool b) {
     char value = b ? 'O' : 'X';
     int new_spot = x * 3 + y;
     this->this_board[x][y] = value;
@@ -60,6 +60,29 @@ bool board_state::check_spot(unsigned int x, unsigned int y) {
     }
     return true;
 }
+
+//check winner brute force check every possible line.
+bool board_state::check_winner() {
+    char c = this->this_board[1][1];
+    if (c != '#') {
+        if (c == this->this_board[1][2] && c == this->this_board[1][0]) return true;
+        if (c == this->this_board[0][1] && c == this->this_board[2][1]) return true;
+        if (c == this->this_board[0][0] && c == this->this_board[2][2]) return true;
+        if (c == this->this_board[0][2] && c == this->this_board[2][0]) return true;
+    }
+    c = this->this_board[0][0];
+    if (c != '#') {
+        if (c == this->this_board[0][1] && c == this->this_board[0][2]) return true;
+        if (c == this->this_board[1][0] && c == this->this_board[2][0]) return true;
+    }
+    c = this->this_board[2][2];
+    if (c != '#') {
+        if (c == this->this_board[2][1] && c == this->this_board[2][0]) return true;
+        if (c == this->this_board[1][2] && c == this->this_board[0][2]) return true;
+    }
+    return false;
+}
+
 //output the board
 void board_state::print() {
     std::cout << "_|0_1_2_" << std::endl;
@@ -101,14 +124,17 @@ void board::start_game() {
     while (this->my_board->remaining_spots > 0) {
         this->display();
         this->player_turn();
+        if (this->my_board->check_winner()) break;
         this->cpu_turn();
+        if (this->my_board->check_winner()) break;
     }
+    if (this->my_board->check_winner()) std::cout << "We have a winner!" << std::endl;
 }
 
 //try setting a value for the player
-bool board::try_value(unsigned int x, unsigned int y) {
+bool board::try_space(unsigned int x, unsigned int y) {
     if (!this->my_board->check_spot(x, y)) return false;
-    this->my_board->set_value(x, y, this->player_choice);
+    this->my_board->set_space(x, y, this->player_choice);
     return true;
 }
 
@@ -124,7 +150,7 @@ void board::player_turn() {
         std::cout << "Please Select Coordinates: ";
         std::cin >> input;
         if (input[0] == 'a') throw;
-        valid = this->try_value(input[0] - 48, input[2] - 48);
+        valid = this->try_space(input[0] - 48, input[2] - 48);
     }
 }
 
@@ -133,6 +159,6 @@ void board::cpu_turn() {
     int spot = this->my_board->remaining_spots_array[0];
     int x = spot / 3;
     int y = spot % 3;
-    this->my_board->set_value(x, y, !this->player_choice);
+    this->my_board->set_space(x, y, !this->player_choice);
 }
 
