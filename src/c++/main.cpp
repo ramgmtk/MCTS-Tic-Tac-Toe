@@ -3,6 +3,10 @@
 
 int main () {
     board b;
-    b.my_board->print();
+    try {
+        b.start_game();
+    } catch(...) {
+        std::cout << "Terminating Game." << std::endl;
+    }
     return 0;
 }

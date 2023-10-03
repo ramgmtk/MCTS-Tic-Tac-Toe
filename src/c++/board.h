@@ -1,6 +1,8 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+class board;
+
 //Board State class manages the data ata  given state for a tic tac toe board;
 class board_state {
     private:
@@ -23,18 +25,30 @@ class board_state {
         ~board_state();
         //setter
         void set_value(unsigned int x, unsigned int y, bool b);
+        //check if a spot is available
+        bool check_spot(unsigned int x, unsigned int y);
         //print
         void print();
+        friend class board;
 
 };
 
 class board {
-    public:
+    private:
+        //!player_choice represens cpu choice
+        bool player_choice;
         board_state* my_board;
+        bool try_value(unsigned int x, unsigned int y);
+        void cpu_turn();
+        void player_turn();
+    public:
         board();
         board(const board&) = delete;
         board& operator=(const board&) = delete;
         ~board();
-        friend class board_state;
+        void start_game();
+        void display();
+        //player try function
+        
 };
 #endif
