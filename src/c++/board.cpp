@@ -3,13 +3,45 @@
 #include <string>
 //BOARD_STATE methods
 
+//declare static variable establishing neighbors of each piece
+std::unordered_map<int, std::vector<int>> board_state::neighbors = {
+    {
+        0, std::vector<int>({4, 1, 3})
+    },
+    {
+        1, std::vector<int>({4, 0, 2})
+    },
+    {
+        2, std::vector<int>({4, 1, 5})
+    },
+    {
+        3, std::vector<int>({4, 0, 6})
+    },
+    {
+        4, std::vector<int>({0, 1, 2, 3, 5, 6, 7, 8})
+    },
+    {
+        5, std::vector<int>({4, 2, 8})
+    },
+    {
+        6, std::vector<int>({4, 3, 7})
+    },
+    {
+        7, std::vector<int>({4, 6, 8})
+    },
+    {
+        8, std::vector<int>({4, 5, 7})
+    },
+};
 //construct a base board
 board_state::board_state() {
     empty = '#';
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            this->this_board[i][j] = this->empty;
+            this->this_board[i][j] = empty;
             this->remaining_spots_array[i * 3 + j] = i * 3 + j;
+            this->player_value_array[0][i * 3 + j] = 0;
+            this->player_value_array[1][i * 3 + j] = 0;
         }
     }
     this->remaining_spots = 9;
@@ -22,6 +54,8 @@ board_state::board_state(const board_state& b) {
         for (int j = 0; j < 3; j++) {
             this->this_board[i][j] = b.this_board[i][j];
             this->remaining_spots_array[i * 3 + j] = b.remaining_spots_array[i * 3 + j];
+            this->player_value_array[0][i * 3 + j] = b.player_value_array[0][i * 3 + j];
+            this->player_value_array[1][i * 3 + j] = b.player_value_array[1][i * 3 + j];
         }
     }
     this->remaining_spots = b.remaining_spots;
@@ -45,6 +79,7 @@ void board_state::set_space(unsigned int x, unsigned int y, bool b) {
             break;
         }
     }
+    this->set_value(x,  y, b);
 }
 
 //helper function to check if a spot is available in the board
@@ -83,6 +118,20 @@ bool board_state::check_winner() {
     return false;
 }
 
+//update the board control value of each player
+//assumed input provided is a legitimate move
+//very inefficient
+void board_state::set_value(unsigned int x, unsigned int y, bool b) {
+    int curr_index = b ? 1 : 0;
+    int opposing_index = b ? 0 : 1;
+    this->player_value_array[curr_index][x*3+y] += 1;
+    this->player_value_array[opposing_index][x*3+y] = -1;
+    for (int neighbor : board_state::neighbors[x*3+y]) {
+        if (this->player_value_array[opposing_index][neighbor] != -1)
+            this->player_value_array[curr_index][neighbor] += 1;
+    }
+}
+
 //output the board
 void board_state::print() {
     std::cout << "_|0_1_2_" << std::endl;
@@ -94,6 +143,17 @@ void board_state::print() {
         std::cout << std::endl;
     }
     std::cout << "--------" << std::endl;
+    //output value array forx and 0
+    std::cout << "board values for X and O" << std::endl;
+    for (int i = 0; i < 2; i++) {
+        std::cout << "--------" << std::endl;
+        for (int j = 0; j < 9; j++) {
+            std::cout << this->player_value_array[i][j] << ",";
+            if ((j+1) % 3 == 0) std::cout << std::endl;
+        }
+        std::cout << "--------" << std::endl;
+    }
+
 }
 
 //BOARD Methods

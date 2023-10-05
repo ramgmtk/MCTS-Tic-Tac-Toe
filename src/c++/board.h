@@ -1,15 +1,21 @@
 #ifndef BOARD_H
 #define BOARD_H
+#include <unordered_map>
+#include <vector>
 
 class board;
 
 //Board State class manages the data ata  given state for a tic tac toe board;
 class board_state {
     private:
+        //static variable detailing reach tiles relation to one another
+        static std::unordered_map<int, std::vector<int>> neighbors;
         //empty space character
         char empty;
         //the actual board
         char this_board[3][3];
+        //calculate board value where index 0 is 'X', 1 is '0'
+        int player_value_array[2][9];
         //The remaining spots to be filled
         //The array is used to ekep account of which wpots in the board are open. the index value does
         //necessarily indicate the position on the board. We adjust remaining spots to limit how much of the array we see
@@ -27,8 +33,11 @@ class board_state {
         void set_space(unsigned int x, unsigned int y, bool b);
         //check if a spot is available
         bool check_spot(unsigned int x, unsigned int y);
-        //chec for winner
+        //check for winner
         bool check_winner();
+        //updates the total value of each player on the board.
+        //example picking a spot assigns 1 point to that spot, and 1 additional point to unoccupied spots
+        void set_value(unsigned int x, unsigned int y, bool b);
         //print
         void print();
         friend class board;
