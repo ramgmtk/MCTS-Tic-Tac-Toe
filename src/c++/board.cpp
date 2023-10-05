@@ -4,6 +4,7 @@
 //BOARD_STATE methods
 
 //declare static variable establishing neighbors of each piece
+//credit to user mfontanini https://stackoverflow.com/questions/13464325/static-map-initialization
 std::unordered_map<int, std::vector<int>> board_state::neighbors = {
     {
         0, std::vector<int>({4, 1, 3})
