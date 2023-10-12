@@ -5,6 +5,8 @@
 
 //declare static variable establishing neighbors of each piece
 //credit to user mfontanini https://stackoverflow.com/questions/13464325/static-map-initialization
+
+//map for handling which spots are related to one another
 std::unordered_map<int, std::vector<int>> board_state::neighbors = {
     {
         0, std::vector<int>({4, 1, 3})
@@ -34,40 +36,48 @@ std::unordered_map<int, std::vector<int>> board_state::neighbors = {
         8, std::vector<int>({4, 5, 7})
     },
 };
-//static board_state function
-int board_state::spot_to_int(spot s) {
-    return s.first * 3 + s.second;
+//static variable handling size of the board
+unsigned int board_state::dimension = 3;
+//static board_state functions
+
+//convert spot to int
+unsigned int board_state::spot_to_uint(spot s) {
+    return s.first * board_state::dimension + s.second;
+}
+//convert int to spot
+spot board_state::int_to_spot(unsigned int i) {
+    return spot(i / board_state::dimension, i % board_state::dimension);
 }
 //construct a base board
 board_state::board_state() {
     empty = '#';
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < board_state::dimension; i++) {
+        for (int j = 0; j < board_state::dimension; j++) {
             this->this_board[i][j] = empty;
-            this->remaining_spots_array[i * 3 + j] = i * 3 + j;
-            this->player_value_array[0][i * 3 + j] = 0;
-            this->player_value_array[1][i * 3 + j] = 0;
+            this->remaining_spots_array[i * board_state::dimension + j] = i * board_state::dimension + j;
+            this->player_value_array[0][i * board_state::dimension + j] = 0;
+            this->player_value_array[1][i * board_state::dimension + j] = 0;
         }
     }
-    this->remaining_spots = 9;
+    this->remaining_spots = board_state::dimension * board_state::dimension;
 }
 
 //copy values from the board state
 board_state::board_state(const board_state& b) {
     empty = '#';
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < board_state::dimension; i++) {
+        for (int j = 0; j < board_state::dimension; j++) {
             this->this_board[i][j] = b.this_board[i][j];
-            this->remaining_spots_array[i * 3 + j] = b.remaining_spots_array[i * 3 + j];
-            this->player_value_array[0][i * 3 + j] = b.player_value_array[0][i * 3 + j];
-            this->player_value_array[1][i * 3 + j] = b.player_value_array[1][i * 3 + j];
+            this->remaining_spots_array[i * board_state::dimension + j] = b.remaining_spots_array[i * board_state::dimension + j];
+            this->player_value_array[0][i * board_state::dimension + j] = b.player_value_array[0][i * board_state::dimension + j];
+            this->player_value_array[1][i * board_state::dimension + j] = b.player_value_array[1][i * board_state::dimension + j];
         }
     }
     this->remaining_spots = b.remaining_spots;
 }
 
 board_state::~board_state() {
-    this->remaining_spots = 9;
+    this->remaining_spots = board_state::dimension * board_state::dimension;
 }
 
 //sets value and updates the remaining spots
@@ -75,7 +85,7 @@ board_state::~board_state() {
 //does not check if a move is valid
 void board_state::set_space(spot s, bool b) {
     char value = b ? 'O' : 'X';
-    int new_spot = board_state::spot_to_int(s);
+    int new_spot = board_state::spot_to_uint(s);
     this->this_board[s.first][s.second] = value;
     for (int i = 0; i < remaining_spots; i++) {
         if (remaining_spots_array[i] == new_spot) {
@@ -89,7 +99,7 @@ void board_state::set_space(spot s, bool b) {
 
 //helper function to check if a spot is available in the board
 bool board_state::check_spot(spot s) {
-    if (s.first >= 3 || s.second >= 3) {
+    if (s.first >= board_state::dimension || s.second >= board_state::dimension) {
         std::cout << __func__ << ": Bad input provided." << std::endl;
         return false;
     }
@@ -129,9 +139,9 @@ bool board_state::check_winner() {
 void board_state::set_value(spot s, bool b) {
     int curr_index = b ? 1 : 0;
     int opposing_index = b ? 0 : 1;
-    this->player_value_array[curr_index][board_state::spot_to_int(s)] += 1;
-    this->player_value_array[opposing_index][board_state::spot_to_int(s)] = -1;
-    for (int neighbor : board_state::neighbors[board_state::spot_to_int(s)]) {
+    this->player_value_array[curr_index][board_state::spot_to_uint(s)] += 1;
+    this->player_value_array[opposing_index][board_state::spot_to_uint(s)] = -1;
+    for (int neighbor : board_state::neighbors[board_state::spot_to_uint(s)]) {
         if (this->player_value_array[opposing_index][neighbor] != -1)
             this->player_value_array[curr_index][neighbor] += 1;
     }
@@ -140,9 +150,9 @@ void board_state::set_value(spot s, bool b) {
 //output the board
 void board_state::print() {
     std::cout << "_|0_1_2_" << std::endl;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < board_state::dimension; i++) {
         std::cout << i << "|";
-        for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < board_state::dimension; j++) {
             std::cout << this->this_board[i][j] << "|";
         }
         std::cout << std::endl;
@@ -152,7 +162,7 @@ void board_state::print() {
     std::cout << "board values for X and O" << std::endl;
     for (int i = 0; i < 2; i++) {
         std::cout << "--------" << std::endl;
-        for (int j = 0; j < 9; j++) {
+        for (int j = 0; j < board_state::dimension*board_state::dimension; j++) {
             std::cout << this->player_value_array[i][j] << ",";
             if ((j+1) % 3 == 0) std::cout << std::endl;
         }
@@ -222,8 +232,8 @@ void board::player_turn() {
 //method for cpu action
 void board::cpu_turn() {
     int s = this->my_board->remaining_spots_array[0];
-    int x = s / 3;
-    int y = s % 3;
+    int x = s / board_state::dimension;
+    int y = s % board_state::dimension;
     this->my_board->set_space(spot(x, y), !this->player_choice);
 }
 

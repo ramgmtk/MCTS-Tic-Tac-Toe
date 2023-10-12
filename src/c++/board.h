@@ -12,6 +12,8 @@ class board_state {
     private:
         //static variable detailing reach tiles relation to one another
         static std::unordered_map<int, std::vector<int>> neighbors;
+        //static variable detailing the boards dimensions
+        static unsigned int dimension;
         //empty space character
         char empty;
         //the actual board
@@ -41,7 +43,9 @@ class board_state {
         //example picking a spot assigns 1 point to that spot, and 1 additional point to unoccupied spots
         void set_value(spot s, bool b);
         //static method for converting a spot into a single numerical value
-        static int spot_to_int(spot s);
+        static unsigned int spot_to_uint(spot s);
+        //static method for converting an int pair to a spot
+        static spot int_to_spot(unsigned int i);
         //print
         void print();
         //classes that can freely acces functions
