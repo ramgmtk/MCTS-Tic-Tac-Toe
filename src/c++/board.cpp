@@ -34,6 +34,10 @@ std::unordered_map<int, std::vector<int>> board_state::neighbors = {
         8, std::vector<int>({4, 5, 7})
     },
 };
+//static board_state function
+int board_state::spot_to_int(spot s) {
+    return s.first * 3 + s.second;
+}
 //construct a base board
 board_state::board_state() {
     empty = '#';
@@ -69,10 +73,10 @@ board_state::~board_state() {
 //sets value and updates the remaining spots
 //true boolean corresponds to 'O', false to 'X'
 //does not check if a move is valid
-void board_state::set_space(unsigned int x, unsigned int y, bool b) {
+void board_state::set_space(spot s, bool b) {
     char value = b ? 'O' : 'X';
-    int new_spot = x * 3 + y;
-    this->this_board[x][y] = value;
+    int new_spot = board_state::spot_to_int(s);
+    this->this_board[s.first][s.second] = value;
     for (int i = 0; i < remaining_spots; i++) {
         if (remaining_spots_array[i] == new_spot) {
             remaining_spots_array[i] = remaining_spots_array[remaining_spots - 1];
@@ -80,18 +84,18 @@ void board_state::set_space(unsigned int x, unsigned int y, bool b) {
             break;
         }
     }
-    this->set_value(x,  y, b);
+    this->set_value(s, b);
 }
 
 //helper function to check if a spot is available in the board
-bool board_state::check_spot(unsigned int x, unsigned int y) {
-    if (x >= 3 || y >= 3) {
+bool board_state::check_spot(spot s) {
+    if (s.first >= 3 || s.second >= 3) {
         std::cout << __func__ << ": Bad input provided." << std::endl;
         return false;
     }
-    if (this->this_board[x][y] != empty) {
-        std::cout << __func__ << ": The space at [" << x << ","
-        << y << "] is occupied." << std:: endl;
+    if (this->this_board[s.first][s.second] != empty) {
+        std::cout << __func__ << ": The space at [" << s.first << ","
+        << s.second << "] is occupied." << std:: endl;
         return false;
     }
     return true;
@@ -122,12 +126,12 @@ bool board_state::check_winner() {
 //update the board control value of each player
 //assumed input provided is a legitimate move
 //very inefficient
-void board_state::set_value(unsigned int x, unsigned int y, bool b) {
+void board_state::set_value(spot s, bool b) {
     int curr_index = b ? 1 : 0;
     int opposing_index = b ? 0 : 1;
-    this->player_value_array[curr_index][x*3+y] += 1;
-    this->player_value_array[opposing_index][x*3+y] = -1;
-    for (int neighbor : board_state::neighbors[x*3+y]) {
+    this->player_value_array[curr_index][board_state::spot_to_int(s)] += 1;
+    this->player_value_array[opposing_index][board_state::spot_to_int(s)] = -1;
+    for (int neighbor : board_state::neighbors[board_state::spot_to_int(s)]) {
         if (this->player_value_array[opposing_index][neighbor] != -1)
             this->player_value_array[curr_index][neighbor] += 1;
     }
@@ -194,8 +198,8 @@ void board::start_game() {
 
 //try setting a value for the player
 bool board::try_space(unsigned int x, unsigned int y) {
-    if (!this->my_board->check_spot(x, y)) return false;
-    this->my_board->set_space(x, y, this->player_choice);
+    if (!this->my_board->check_spot(spot(x, y))) return false;
+    this->my_board->set_space(spot(x, y), this->player_choice);
     return true;
 }
 
@@ -217,9 +221,9 @@ void board::player_turn() {
 
 //method for cpu action
 void board::cpu_turn() {
-    int spot = this->my_board->remaining_spots_array[0];
-    int x = spot / 3;
-    int y = spot % 3;
-    this->my_board->set_space(x, y, !this->player_choice);
+    int s = this->my_board->remaining_spots_array[0];
+    int x = s / 3;
+    int y = s % 3;
+    this->my_board->set_space(spot(x, y), !this->player_choice);
 }
 

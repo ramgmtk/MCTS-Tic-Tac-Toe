@@ -2,7 +2,9 @@
 #define BOARD_H
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
+using spot = std::pair<unsigned int, unsigned int>;
 class board;
 
 //Board State class manages the data ata  given state for a tic tac toe board;
@@ -30,17 +32,21 @@ class board_state {
         board_state& operator=(const board_state&) = delete;
         ~board_state();
         //setter
-        void set_space(unsigned int x, unsigned int y, bool b);
+        void set_space(spot s, bool b);
         //check if a spot is available
-        bool check_spot(unsigned int x, unsigned int y);
+        bool check_spot(spot s);
         //check for winner
         bool check_winner();
         //updates the total value of each player on the board.
         //example picking a spot assigns 1 point to that spot, and 1 additional point to unoccupied spots
-        void set_value(unsigned int x, unsigned int y, bool b);
+        void set_value(spot s, bool b);
+        //static method for converting a spot into a single numerical value
+        static int spot_to_int(spot s);
         //print
         void print();
+        //classes that can freely acces functions
         friend class board;
+        friend class mcts_node;
 
 };
 
