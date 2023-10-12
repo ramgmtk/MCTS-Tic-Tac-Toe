@@ -140,7 +140,7 @@ void board_state::set_value(spot s, bool b) {
     this->player_value_array[curr_index][board_state::spot_to_uint(s)] += 1;
     this->player_value_array[opposing_index][board_state::spot_to_uint(s)] = -1;
     for (int neighbor : board_state::neighbors[board_state::spot_to_uint(s)]) {
-        if (this->player_value_array[opposing_index][neighbor] != -1)
+        if (this->player_value_array[curr_index][neighbor] != -1)
             this->player_value_array[curr_index][neighbor] += 1;
     }
 }
