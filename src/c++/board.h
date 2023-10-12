@@ -5,20 +5,20 @@
 #include <utility>
 
 using spot = std::pair<unsigned int, unsigned int>;
+const unsigned int DIMENSION = 3;
 class board;
 
-//Board State class manages the data ata  given state for a tic tac toe board;
+//Board State class manages the data ata  given state for a tic tac toe bord;
 class board_state {
     private:
         //static variable detailing reach tiles relation to one another
         static std::unordered_map<int, std::vector<int>> neighbors;
         //static variable detailing the boards dimensions
-        static unsigned int dimension;
         //empty space character
         char empty;
         //the actual board
-        char this_board[3][3];
-        //calculate board value where index 0 is 'X', 1 is '0'
+    char this_board[DIMENSION][DIMENSION];
+        //calculate board value where index 0 is 'X',  is '0'
         int player_value_array[2][9];
         //The remaining spots to be filled
         //The array is used to ekep account of which wpots in the board are open. the index value does
