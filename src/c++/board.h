@@ -45,10 +45,13 @@ class board_state {
         //static method for converting a spot into a single numerical value
         static unsigned int spot_to_uint(spot s);
         //static method for converting an int pair to a spot
-        static spot int_to_spot(unsigned int i);
+        static spot uint_to_spot(unsigned int i);
+        //return available moves
+        static std::vector<spot> available_moves(const board_state& b);
         //print
         void print();
-        //classes that can freely acces functions
+        //classes and methods that can freely acces functions
+        friend bool operator==(const board_state& lhs, const board_state& rhs);
         friend class board;
         friend class mcts_node;
 

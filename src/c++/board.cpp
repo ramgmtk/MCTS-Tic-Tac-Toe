@@ -1,5 +1,6 @@
 #include <iostream>
 #include "board.h"
+#include "mcts.h"
 #include <string>
 //BOARD_STATE methods
 
@@ -43,9 +44,18 @@ unsigned int board_state::spot_to_uint(spot s) {
     return s.first * DIMENSION + s.second;
 }
 //convert int to spot
-spot board_state::int_to_spot(unsigned int i) {
+spot board_state::uint_to_spot(unsigned int i) {
     return spot(i / DIMENSION, i % DIMENSION);
 }
+//return a vector containing avaiable spots on the board
+std::vector<spot> board_state::available_moves(const board_state& b) {
+    std::vector<spot> moves;
+    for (int i = 0; i < b.remaining_spots; i++) {
+        moves.push_back(board_state::uint_to_spot(b.remaining_spots_array[i]));
+    }
+    return moves;
+}
+
 //construct a base board
 board_state::board_state() {
     empty = '#';
@@ -169,6 +179,15 @@ void board_state::print() {
 
 }
 
+bool operator==(const board_state& lhs, const board_state& rhs) {
+    for (int i = 0; i < DIMENSION; i++) {
+        for (int j = 0; j < DIMENSION; j++) {
+            if (lhs.this_board[i][j] != rhs.this_board[i][j]) return false;
+        }
+    }
+    return true;
+}
+
 //BOARD Methods
 
 //board constructor
@@ -194,6 +213,7 @@ void board::start_game() {
     std::cout << "Please select your choice: " << std::endl;
     std::cin >> input;
     this->player_choice = input[0] == 'O' ? true : false;
+    mcts_node::identity = !this->player_choice;
     while (this->my_board->remaining_spots > 0) {
         this->display();
         this->player_turn();
