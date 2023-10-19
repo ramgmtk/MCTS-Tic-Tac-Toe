@@ -56,6 +56,34 @@ std::vector<spot> board_state::available_moves(const board_state& b) {
     return moves;
 }
 
+//check winner brute force check every possible line.
+bool board_state::check_winner(const board_state& b) {
+    char c = b.this_board[1][1];
+    if (c != '#') {
+        if (c == b.this_board[1][2] && c == b.this_board[1][0]) return true;
+        if (c == b.this_board[0][1] && c == b.this_board[2][1]) return true;
+        if (c == b.this_board[0][0] && c == b.this_board[2][2]) return true;
+        if (c == b.this_board[0][2] && c == b.this_board[2][0]) return true;
+    }
+    c = b.this_board[0][0];
+    if (c != '#') {
+        if (c == b.this_board[0][1] && c == b.this_board[0][2]) return true;
+        if (c == b.this_board[1][0] && c == b.this_board[2][0]) return true;
+    }
+    c = b.this_board[2][2];
+    if (c != '#') {
+        if (c == b.this_board[2][1] && c == b.this_board[2][0]) return true;
+        if (c == b.this_board[1][2] && c == b.this_board[0][2]) return true;
+    }
+    return false;
+}
+
+//check if the game is over
+bool board_state::is_over(const board_state& b) {
+    if (b.remaining_spots == 0 || board_state::check_winner(b)) return true;
+    return false;
+}
+
 //construct a base board
 board_state::board_state() {
     empty = '#';
@@ -81,6 +109,7 @@ board_state::board_state(const board_state& b) {
             this->player_value_array[1][i * DIMENSION + j] = b.player_value_array[1][i * DIMENSION + j];
         }
     }
+    this->turn_player = b.turn_player;
     this->remaining_spots = b.remaining_spots;
 }
 
@@ -91,8 +120,8 @@ board_state::~board_state() {
 //sets value and updates the remaining spots
 //true boolean corresponds to 'O', false to 'X'
 //does not check if a move is valid
-void board_state::set_space(spot s, bool b) {
-    char value = b ? 'O' : 'X';
+void board_state::set_space(spot s) {
+    char value = this->turn_player ? 'O' : 'X';
     int new_spot = board_state::spot_to_uint(s);
     this->this_board[s.first][s.second] = value;
     for (int i = 0; i < remaining_spots; i++) {
@@ -102,7 +131,8 @@ void board_state::set_space(spot s, bool b) {
             break;
         }
     }
-    this->set_value(s, b);
+    this->set_value(s, this->turn_player);
+    this->turn_player = !this->turn_player;
 }
 
 //helper function to check if a spot is available in the board
@@ -119,28 +149,6 @@ bool board_state::check_spot(spot s) {
     return true;
 }
 
-//check winner brute force check every possible line.
-bool board_state::check_winner() {
-    char c = this->this_board[1][1];
-    if (c != '#') {
-        if (c == this->this_board[1][2] && c == this->this_board[1][0]) return true;
-        if (c == this->this_board[0][1] && c == this->this_board[2][1]) return true;
-        if (c == this->this_board[0][0] && c == this->this_board[2][2]) return true;
-        if (c == this->this_board[0][2] && c == this->this_board[2][0]) return true;
-    }
-    c = this->this_board[0][0];
-    if (c != '#') {
-        if (c == this->this_board[0][1] && c == this->this_board[0][2]) return true;
-        if (c == this->this_board[1][0] && c == this->this_board[2][0]) return true;
-    }
-    c = this->this_board[2][2];
-    if (c != '#') {
-        if (c == this->this_board[2][1] && c == this->this_board[2][0]) return true;
-        if (c == this->this_board[1][2] && c == this->this_board[0][2]) return true;
-    }
-    return false;
-}
-
 //update the board control value of each player
 //assumed input provided is a legitimate move
 //very inefficient
@@ -153,6 +161,21 @@ void board_state::set_value(spot s, bool b) {
         if (this->player_value_array[curr_index][neighbor] != -1)
             this->player_value_array[curr_index][neighbor] += 1;
     }
+}
+
+//getter for who is the turn player
+bool board_state::get_turn_player() {
+    return this->turn_player;
+}
+
+//getter for value
+int board_state::get_value(bool b) {
+    int curr_index = b ? 1 : 0;
+    int value = 0;
+    for (int i = 0; i < DIMENSION; i++) {
+        if (this->player_value_array[curr_index][i] != -1) value += this->player_value_array[curr_index][i];
+    }
+    return value;
 }
 
 //output the board
@@ -213,21 +236,22 @@ void board::start_game() {
     std::cout << "Please select your choice: " << std::endl;
     std::cin >> input;
     this->player_choice = input[0] == 'O' ? true : false;
+    this->my_board->turn_player = this->player_choice;
     mcts_node::identity = !this->player_choice;
     while (this->my_board->remaining_spots > 0) {
         this->display();
         this->player_turn();
-        if (this->my_board->check_winner()) break;
+        if (board_state::check_winner(*this->my_board)) break;
         this->cpu_turn();
-        if (this->my_board->check_winner()) break;
+        if (board_state::check_winner(*this->my_board)) break;
     }
-    if (this->my_board->check_winner()) std::cout << "We have a winner!" << std::endl;
+    if (board_state::check_winner(*this->my_board)) std::cout << "We have a winner!" << std::endl;
 }
 
 //try setting a value for the player
 bool board::try_space(unsigned int x, unsigned int y) {
     if (!this->my_board->check_spot(spot(x, y))) return false;
-    this->my_board->set_space(spot(x, y), this->player_choice);
+    this->my_board->set_space(spot(x, y));
     return true;
 }
 
@@ -252,6 +276,6 @@ void board::cpu_turn() {
     int s = this->my_board->remaining_spots_array[0];
     int x = s / DIMENSION;
     int y = s % DIMENSION;
-    this->my_board->set_space(spot(x, y), !this->player_choice);
+    this->my_board->set_space(spot(x, y));
 }
 
