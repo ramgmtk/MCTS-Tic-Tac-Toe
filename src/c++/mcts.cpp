@@ -46,7 +46,7 @@ spot mcts_node::think(board_state* b) {
         }
     }
     for (auto move_child : root->children) {
-        float c_win_rate = move_child.second->wins / move_child.second->visits;
+        float c_win_rate = (float)move_child.second->wins / (float)move_child.second->visits;
         if (c_win_rate > win_rate) {
             win_rate = c_win_rate;
             best_move = board_state::uint_to_spot(move_child.first);
@@ -117,8 +117,8 @@ float mcts_node::upper_confidence_bound(mcts_node* child, mcts_node* parent, boo
     int w = child->wins;
     int si = child->visits;
     int sp = parent->visits;
-    float win_rate = w / si;
-    if (opponents_turn) win_rate = 1 - win_rate;
-    float ucbt = win_rate + (2 * sqrt(log(sp) / si));
+    float win_rate = (float)w / (float)si;
+    if (opponents_turn) win_rate = 1.0 - win_rate;
+    float ucbt = win_rate + (2.0 * sqrt(log(sp) / si));
     return ucbt;
 }

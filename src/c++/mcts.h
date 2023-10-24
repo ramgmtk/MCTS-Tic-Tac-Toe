@@ -2,7 +2,7 @@
 #define MCTS_H
 #include "board.h"
 
-const unsigned int NUM_NODES = 25;
+const unsigned int NUM_NODES = 100;
 //class used to facilitate monet carlo tree search for the tic tac to bot
 class mcts_node {
     private:
