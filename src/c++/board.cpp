@@ -245,7 +245,10 @@ void board::start_game() {
         this->cpu_turn();
         if (board_state::check_winner(*this->my_board)) break;
     }
+    std::cout << "---------\n";
     if (board_state::check_winner(*this->my_board)) std::cout << "We have a winner!" << std::endl;
+    std::cout << "Game Over" << std::endl;
+    this->display();
 }
 
 //try setting a value for the player
