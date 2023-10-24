@@ -26,9 +26,9 @@ spot mcts_node::think(board_state* b) {
     mcts_node::identity = b->get_turn_player();
     srand(time(NULL));
     board_state currB (*b);
-    spot best_move;
+    spot best_move = spot(DIMENSION, DIMENSION);
     int most_visits = 0;
-    int win_rate = 0;
+    float win_rate = 0;
     mcts_node* root = new mcts_node(spot(0, 0), currB,nullptr);
     //DO MCTS
     for (int i = 0; i < NUM_NODES; i++) {
@@ -38,12 +38,26 @@ spot mcts_node::think(board_state* b) {
         mcts_node* new_node = nullptr;
         //expand iff we are not on end game board
         if (leaf != nullptr) new_node = mcts_node::expand_leaf(leaf);
-        int result = mcts_node::rollout(*new_node->my_state);
-
+        if (new_node) {
         //rollout
-        //backPropogate
+        int result = mcts_node::rollout(*new_node->my_state);
+        //backpropogate
+        mcts_node::backpropogate(new_node, result);
+        }
     }
-    
+    for (auto move_child : root->children) {
+        float c_win_rate = move_child.second->wins / move_child.second->visits;
+        if (c_win_rate > win_rate) {
+            win_rate = c_win_rate;
+            best_move = board_state::uint_to_spot(move_child.first);
+        }
+        if (most_visits < move_child.second->visits) {
+            if (best_move == spot(DIMENSION, DIMENSION)) {
+                best_move = board_state::uint_to_spot(move_child.first);
+            }
+            most_visits = move_child.second->visits;
+        }
+    }
     delete root;
     return best_move;
 }
@@ -53,7 +67,7 @@ mcts_node* mcts_node::traverse(mcts_node* parent) {
     mcts_node* node = parent;
     float current_ucbt = -1 * INFINITY;
     bool opponents_turn = false;
-    if (node->untried_actions.empty()) {
+    if (node->untried_actions.size() == 0) {
         mcts_node* best_child = nullptr;
         if (node->children.empty()) return best_child;
         if (node->my_state->get_turn_player() != mcts_node::identity) opponents_turn = true;
@@ -83,9 +97,9 @@ mcts_node* mcts_node::expand_leaf(mcts_node* parent) {
 //rollouts strategy for finding end game state
 int mcts_node::rollout(board_state b) {
     board_state new_state = b;
-    while (board_state::is_over(new_state)) {
-        int index = rand() % new_state.remaining_spots - 1;
-        spot move = board_state::uint_to_spot(b.remaining_spots_array[index]);
+    while (!board_state::is_over(new_state)) {
+        int index = rand() % new_state.remaining_spots;
+        spot move = board_state::uint_to_spot(new_state.remaining_spots_array[index]);
         new_state.set_space(move);
     }
     if (new_state.check_winner && !new_state.get_turn_player() == mcts_node::identity) return 1;
@@ -93,7 +107,7 @@ int mcts_node::rollout(board_state b) {
 }
 //backporpogation
 void mcts_node::backpropogate(mcts_node* curr, int result) {
-    if  (curr->parent ==  nullptr) return;
+    if  (curr ==  nullptr) return;
     curr->wins += result;
     curr->visits += 1;
     mcts_node::backpropogate(curr->parent, result);

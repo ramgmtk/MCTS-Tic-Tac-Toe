@@ -190,7 +190,7 @@ void board_state::print() {
     }
     std::cout << "--------" << std::endl;
     //output value array forx and 0
-    std::cout << "board values for X and O" << std::endl;
+    /*std::cout << "board values for X and O" << std::endl;
     for (int i = 0; i < 2; i++) {
         std::cout << "--------" << std::endl;
         for (int j = 0; j < DIMENSION*DIMENSION; j++) {
@@ -198,7 +198,7 @@ void board_state::print() {
             if ((j+1) % 3 == 0) std::cout << std::endl;
         }
         std::cout << "--------" << std::endl;
-    }
+    }*/
 
 }
 
@@ -273,9 +273,9 @@ void board::player_turn() {
 
 //method for cpu action
 void board::cpu_turn() {
-    int s = this->my_board->remaining_spots_array[0];
+    /*int s = this->my_board->remaining_spots_array[0];
     int x = s / DIMENSION;
-    int y = s % DIMENSION;
-    this->my_board->set_space(spot(x, y));
+    int y = s % DIMENSION;*/
+    this->my_board->set_space(mcts_node::think(this->my_board));
 }
 
