@@ -50,8 +50,10 @@ spot board_state::uint_to_spot(unsigned int i) {
 //return a vector containing avaiable spots on the board
 std::vector<spot> board_state::available_moves(const board_state& b) {
     std::vector<spot> moves;
-    for (int i = 0; i < b.remaining_spots; i++) {
-        moves.push_back(board_state::uint_to_spot(b.remaining_spots_array[i]));
+    if (!board_state::check_winner(b)) {
+        for (int i = 0; i < b.remaining_spots; i++) {
+            moves.push_back(board_state::uint_to_spot(b.remaining_spots_array[i]));
+        }
     }
     return moves;
 }
