@@ -1,4 +1,5 @@
-Monte Carlo Tree Search Review<br/>
+Monte Carlo Tree Search Tic Tac Toe
+<br/>
 C++ Version Breakdown<br/>
 Mcts.* are the files used to implement mcts. bot has a utilizes a think method which implements each step of mcts which are to traverse, expand, rollout, and backpropogate. 
 The the board class is a container for my version of a tic tac toe game. The class facilitates the game between the playe rand the ai, and interfaces with the board_state class.
