@@ -39,8 +39,9 @@ public class game {
     }
 
     private void cpuTurn() {
-        spot choice = spot.intToSpot(this.my_board.remaining_spots_array[0]);
-        this.my_board.setSpace(choice);
+        //spot choice = spot.intToSpot(this.my_board.remaining_spots_array[0]);
+        //this.my_board.setSpace(choice);
+        this.my_board.setSpace(montecarlo.think(this.my_board));
     }
 
     public void display() {

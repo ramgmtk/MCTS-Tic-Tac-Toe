@@ -116,6 +116,9 @@ class state {
         ArrayList<Integer> moves = new ArrayList<Integer>(this.remaining_spots);
         if (!this.checkWinner()) {
             for (int i = 0; i < remaining_spots; i++) {
+                moves.add(-1);
+            }
+            for (int i = 0; i < remaining_spots; i++) {
                 moves.set(i, this.remaining_spots_array[i]);
             }
         }
